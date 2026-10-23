@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgresql-config
+  namespace: data
+  labels:
+    app.kubernetes.io/name: postgresql
+data:
+  POSTGRES_DB: online_store
+  POSTGRES_USER: online_store_admin
