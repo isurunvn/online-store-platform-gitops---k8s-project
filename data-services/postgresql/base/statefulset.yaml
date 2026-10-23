@@ -30,7 +30,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: postgresql
-          image: postgres:17.11-bookworm
+          image: docker.io/library/postgres:17.11-bookworm
           imagePullPolicy: IfNotPresent
           args:
             - -c
