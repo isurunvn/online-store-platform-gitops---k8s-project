@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: keycloak
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/isurunvn/online-store-platform-gitops---k8s-project.git
+    targetRevision: main
+    path: identity/keycloak/base
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: identity
+  syncPolicy:
+    automated: {}
+    syncOptions:
+      - Prune=false
+      - Delete=false
