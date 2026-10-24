@@ -4,3 +4,4 @@ resources:
   - apps/platform-namespaces.yaml
   - apps/postgresql.yaml
   - apps/rabbitmq.yaml
+  - apps/keycloak.yaml
