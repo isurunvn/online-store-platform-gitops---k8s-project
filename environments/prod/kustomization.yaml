@@ -5,3 +5,4 @@ resources:
   - apps/postgresql.yaml
   - apps/rabbitmq.yaml
   - apps/keycloak.yaml
+  - apps/gateway-api-crds.yaml
