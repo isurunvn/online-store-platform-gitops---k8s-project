@@ -7,3 +7,4 @@ resources:
   - apps/keycloak.yaml
   - apps/gateway-api-crds.yaml
   - apps/nginx-gateway-fabric.yaml
+  - apps/online-store-gateway.yaml

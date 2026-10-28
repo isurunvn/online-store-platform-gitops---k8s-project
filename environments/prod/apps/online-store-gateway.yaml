@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: online-store-gateway
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/isurunvn/online-store-platform-gitops---k8s-project.git
+    targetRevision: main
+    path: platform/gateway/base
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: platform
+  syncPolicy:
+    automated: {}
+    syncOptions:
+      - Prune=false
+      - Delete=false
