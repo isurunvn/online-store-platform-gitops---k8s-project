@@ -4,6 +4,7 @@ namespace: identity
 resources:
   - service.yaml
   - deployment.yaml
+  - httproute.yaml
 configMapGenerator:
   - name: keycloak-realm
     files:
