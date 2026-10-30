@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-config
+  namespace: online-store
+  labels:
+    app.kubernetes.io/name: backend
+data:
+  SPRING_PROFILES_ACTIVE: docker
+  SERVER_PORT: "8083"
+  DB_URL: jdbc:postgresql://postgresql.data.svc.cluster.local:5432/online_store
+  RABBITMQ_HOST: rabbitmq.messaging.svc.cluster.local
+  RABBITMQ_PORT: "5672"
+  RABBITMQ_EXCHANGE: order.exchange
+  RABBITMQ_ORDER_CREATED_QUEUE: order.created.queue
+  RABBITMQ_ORDER_CREATED_ROUTING_KEY: order.created
+  # Match the issuer in tokens from the existing browser login flow.
+  JWT_ISSUER_URI: http://localhost:8080/realms/online-store
+  # Fetch verification keys internally instead of contacting Pod-local localhost.
+  SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI: http://keycloak.identity.svc.cluster.local:8080/realms/online-store/protocol/openid-connect/certs
+  KEYCLOAK_AUTH_SERVER_URL: http://localhost:8080
+  KEYCLOAK_REALM: online-store
+  KEYCLOAK_CLIENT_ID: online-store-frontend
+  KEYCLOAK_TOKEN_URI: http://localhost:8080/realms/online-store/protocol/openid-connect/token
+  CORS_ALLOWED_ORIGINS: http://localhost:5173
+  MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: health,info
+  MANAGEMENT_ENDPOINT_HEALTH_SHOWDETAILS: never
