@@ -1,35 +1,32 @@
 name: Validate GitOps
-
 on:
   pull_request:
+    branches: [main]
   push:
     branches: [main]
-
+permissions:
+  contents: read
 jobs:
   validate:
-    runs-on: ubuntu-latest
+    name: GitOps validation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
-      - uses: imranismail/setup-kustomize@v2
-      - name: Render production and application workloads
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          kustomize build environments/prod > /dev/null
-
-          failed=0
-          # These three Applications are enabled in environments/prod/kustomization.yaml.
-          for app in backend frontend notification-service; do
-            echo "Validating ${app}"
-            if ! rendered=$(kustomize build "apps/${app}/base"); then
-              echo "::error::Failed to render ${app}"
-              failed=1
-              continue
-            fi
-            if grep -q 'BUILD_REQUIRED' <<< "$rendered"; then
-              echo "::error::${app} contains BUILD_REQUIRED; provide a verified image digest"
-              failed=1
-            fi
-          done
-          exit "$failed"
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - run: python3 ci/install-tools.py kustomize kubeconform trivy gitleaks actionlint
+      - run: python3 -m pip install PyYAML==6.0.3
+      - run: actionlint
+      - run: python3 -m unittest discover -s ci -p 'test_*.py'
+      - run: python3 ci/validate.py
+      - run: gitleaks git . --redact --no-banner
+      - run: python3 ci/scan.py config .ci-output/rendered
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        if: always()
+        with:
+          name: gitops-validation
+          path: .ci-output/
+          include-hidden-files: true
+          retention-days: 14
