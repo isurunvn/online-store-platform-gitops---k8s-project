@@ -34,7 +34,7 @@ spec:
         envFrom:
         - configMapRef:
             name: notification-service-config
-        image: phx.ocir.io/axkouhjvgred/online-store/notification-service:BUILD_REQUIRED
+        image: phx.ocir.io/axkouhjvgred/online-store/notification-service@sha256:a5722c5291dd0ea421d8191c791f6377ffb72d3796e488cc541c5be847cf8a8a
         imagePullPolicy: IfNotPresent
         livenessProbe:
           failureThreshold: 6

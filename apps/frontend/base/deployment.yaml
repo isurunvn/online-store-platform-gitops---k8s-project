@@ -20,7 +20,7 @@ spec:
     spec:
       automountServiceAccountToken: false
       containers:
-      - image: phx.ocir.io/axkouhjvgred/online-store/frontend:BUILD_REQUIRED
+      - image: phx.ocir.io/axkouhjvgred/online-store/frontend@sha256:dffbc44f87738de9fe28f9ce1e0d3589fd357eaa33392db4b40ff24c39f0f14b
         imagePullPolicy: IfNotPresent
         livenessProbe:
           failureThreshold: 6
