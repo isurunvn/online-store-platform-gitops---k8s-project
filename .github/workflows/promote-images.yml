@@ -1,62 +1,11 @@
-name: Promote published images
+name: Legacy manual promotion disabled
 on:
   workflow_dispatch:
-    inputs:
-      backend:
-        description: 'Backend OCIR image@sha256:digest (optional)'
-        required: false
-        type: string
-      frontend:
-        description: 'Frontend OCIR image@sha256:digest (optional)'
-        required: false
-        type: string
-      notification_service:
-        description: 'Notification OCIR image@sha256:digest (optional)'
-        required: false
-        type: string
-permissions:
-  contents: write
-concurrency:
-  group: promote-main
-  cancel-in-progress: false
+permissions: {}
 jobs:
-  promote:
-    if: github.ref == 'refs/heads/main'
+  explain:
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-        with:
-          ref: main
-      - name: Update exact image references and enable their Applications
-        env:
-          BACKEND_IMAGE: ${{ inputs.backend }}
-          FRONTEND_IMAGE: ${{ inputs.frontend }}
-          NOTIFICATION_IMAGE: ${{ inputs.notification_service }}
-        run: |
-          set -euo pipefail
-          args=()
-          [[ -z "$BACKEND_IMAGE" ]] || args+=(--backend "$BACKEND_IMAGE")
-          [[ -z "$FRONTEND_IMAGE" ]] || args+=(--frontend "$FRONTEND_IMAGE")
-          [[ -z "$NOTIFICATION_IMAGE" ]] || args+=(--notification-service "$NOTIFICATION_IMAGE")
-          python3 scripts/promote-images.py "${args[@]}"
-          git diff --check
-      - name: Render production manifests
-        run: |
-          set -euo pipefail
-          kubectl kustomize environments/prod > /tmp/applications.yaml
-          for app in backend frontend notification-service; do
-            kubectl kustomize "apps/$app/base" > "/tmp/$app.yaml"
-          done
-      - name: Commit promotion for Argo CD
-        run: |
-          set -euo pipefail
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add apps/*/base/deployment.yaml environments/prod/kustomization.yaml
-          if git diff --cached --quiet; then
-            echo 'Images already promoted.'
-          else
-            git commit -m 'Promote published application images'
-            git push origin HEAD:main
-          fi
+      - run: |
+          echo '::error::Direct-main/manual-digest promotion is retired. Use the successful publication workflow and its evidence-backed promotion PR. See DELIVERY.md.'
+          exit 1

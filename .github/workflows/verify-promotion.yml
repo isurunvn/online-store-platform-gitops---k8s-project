@@ -1,0 +1,47 @@
+name: Verify promotion evidence
+on:
+  pull_request_target:
+    branches: [main]
+    types: [opened, synchronize, reopened, labeled]
+permissions:
+  contents: read
+  pull-requests: read
+jobs:
+  evidence:
+    name: Promotion evidence
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      # SECURITY: checkout only trusted base code, never the candidate PR.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          persist-credentials: false
+      - run: python3 -m pip install PyYAML==6.0.3
+      - name: Detect image changes using trusted code
+        id: detect
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 ci/review-promotion.py --detect
+      - uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510
+        id: source
+        if: steps.detect.outputs.needed == 'true'
+        with:
+          app-id: ${{ vars.EVIDENCE_APP_ID }}
+          private-key: ${{ secrets.EVIDENCE_APP_PRIVATE_KEY }}
+          owner: isurunvn
+          repositories: |
+            online-store-platform-backend---k8s-project
+            online-store-platform-frontend---k8s-project
+            online-store-notification-service---k8s-project
+          permission-actions: read
+          permission-contents: read
+      - name: Install signature verifier
+        if: steps.detect.outputs.needed == 'true'
+        run: python3 ci/install-tools.py cosign
+      - name: Validate PR data against authenticated publication evidence
+        if: steps.detect.outputs.needed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_TOKEN: ${{ steps.source.outputs.token }}
+        run: python3 ci/review-promotion.py
