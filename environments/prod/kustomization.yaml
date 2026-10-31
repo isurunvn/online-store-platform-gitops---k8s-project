@@ -9,3 +9,5 @@ resources:
   - apps/nginx-gateway-fabric.yaml
   - apps/online-store-gateway.yaml
   - apps/backend.yaml
+  - apps/notification-service.yaml
+  - apps/frontend.yaml
