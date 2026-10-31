@@ -11,4 +11,25 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: imranismail/setup-kustomize@v2
-      - run: kustomize build environments/prod
+      - name: Render production and application workloads
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          kustomize build environments/prod > /dev/null
+
+          failed=0
+          # These three Applications are enabled in environments/prod/kustomization.yaml.
+          for app in backend frontend notification-service; do
+            echo "Validating ${app}"
+            if ! rendered=$(kustomize build "apps/${app}/base"); then
+              echo "::error::Failed to render ${app}"
+              failed=1
+              continue
+            fi
+            if grep -q 'BUILD_REQUIRED' <<< "$rendered"; then
+              echo "::error::${app} contains BUILD_REQUIRED; provide a verified image digest"
+              failed=1
+            fi
+          done
+          exit "$failed"
